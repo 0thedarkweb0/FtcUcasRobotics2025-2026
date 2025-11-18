@@ -8,12 +8,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Config
-@Autonomous(group = "drive", name="Far Low Bar")
-public class autoRedFar extends LinearOpMode {
+@Autonomous(group = "drive", name="Close Low Bar")
+public class autoRedClose extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -33,7 +32,7 @@ public class autoRedFar extends LinearOpMode {
                 .build();
 
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .strafeLeft(80)
+                .strafeLeft(60)
                 .build();
         waitForStart();
 
