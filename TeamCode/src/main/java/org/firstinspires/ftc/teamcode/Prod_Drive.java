@@ -17,11 +17,16 @@ public class Prod_Drive extends LinearOpMode {
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("leftFrontDrive");
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("leftBackDrive");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("rightBackDrive");
+        DcMotor motorBoost = hardwareMap.dcMotor.get("boostDrive");
+        DcMotor motorFling = hardwareMap.dcMotor.get("flingDrive");
+        Servo turn = hardwareMap.servo.get("turn");
+        double flingPower = 0;
+        double boostPower = 0;
 
         // Reverse the right side motors
         // This may or may not need to be changed based on how the robots motors are mounted
         // If movement is weird mess with these first
-        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        //motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
        
         // This is the line that ends the init of the bot
@@ -44,14 +49,33 @@ public class Prod_Drive extends LinearOpMode {
             double frontRightPower = (ly - rx - lx) / denominator;
             double backRightPower = (ly + rx - lx) / denominator;
 
+            //Detect input
+            if (gamepad1.a) {
+                flingPower = 1;
+            }else{
+                flingPower = 0;
+            }
+
+            if (gamepad1.b){
+                boostPower = 1;
+            }else{
+                boostPower = 0;
+            }
+
+
+
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
             motorFrontLeft.setPower(frontLeftPower);
             motorBackLeft.setPower(backLeftPower);
+            motorFling.setPower(flingPower);
+            motorBoost.setPower(boostPower);
 
             // Adds telemetry on the control hub to check stick positions
             telemetry.addData("Gamepad X", gamepad1.left_stick_x);
             telemetry.addData("Gamepad Y", gamepad1.left_stick_y);
+            telemetry.addData("Fling power", flingPower);
+            telemetry.addData("Boost up", boostPower);
 
             // Sends it to the control hub
             telemetry.update();
