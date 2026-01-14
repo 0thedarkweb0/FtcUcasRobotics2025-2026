@@ -26,8 +26,10 @@ public class Prod_Drive extends LinearOpMode {
         // Reverse the right side motors
         // This may or may not need to be changed based on how the robots motors are mounted
         // If movement is weird mess with these first
-        //motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        //motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
        
         // This is the line that ends the init of the bot
         waitForStart();
@@ -39,7 +41,7 @@ public class Prod_Drive extends LinearOpMode {
             // These lines assign game-pad 1 joysticks to variables
             double ly = -gamepad1.left_stick_y;
             double rx = -gamepad1.right_stick_x;
-            double lx = gamepad1.left_stick_x;
+            double lx = -gamepad1.left_stick_x;
 
             // This makes variables for the motor power and sets it based on some math
             // That takes the joystick x and y and does some things for motor power
@@ -61,9 +63,7 @@ public class Prod_Drive extends LinearOpMode {
             }else{
                 boostPower = 0;
             }
-
-
-
+            turn.setPosition(gamepad1.left_trigger);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
             motorFrontLeft.setPower(frontLeftPower);
@@ -76,6 +76,8 @@ public class Prod_Drive extends LinearOpMode {
             telemetry.addData("Gamepad Y", gamepad1.left_stick_y);
             telemetry.addData("Fling power", flingPower);
             telemetry.addData("Boost up", boostPower);
+            telemetry.addData("Servo Position", turn.getPosition());
+            telemetry.addData("Servo Direction", turn.getDirection());
 
             // Sends it to the control hub
             telemetry.update();
