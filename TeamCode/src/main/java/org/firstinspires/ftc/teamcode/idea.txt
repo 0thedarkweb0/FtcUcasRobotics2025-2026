@@ -1,0 +1,5 @@
+ Blue Id: 20
+ Red Id: 24
+ Loading zone red (bottom left) is 0,0
+ Total Field size 144 x 144
+ Each square is 24 x 24

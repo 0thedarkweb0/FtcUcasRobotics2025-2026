@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.CRServo;
-@TeleOp(name = "ProdDrive (Drive with this one)")
-public class Prod_Drive extends LinearOpMode {
+
+@Autonomous(name = "Just Forward")
+public class SemiAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -16,9 +18,8 @@ public class Prod_Drive extends LinearOpMode {
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("leftBack");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("rightBack");
         DcMotor motorFling = hardwareMap.dcMotor.get("fling");
-        CRServo turn = hardwareMap.crservo.get("push");
+        CRServo turn = hardwareMap.crservo.get("turn");
         CRServo suck = hardwareMap.crservo.get("suck");
-        CRServo suck1 = hardwareMap.crservo.get("suck1");
 
         double flingPower = 0;
         double suckPower = 0;
@@ -52,59 +53,14 @@ public class Prod_Drive extends LinearOpMode {
             double frontRightPower = (ly - rx - lx) / denominator;
             double backRightPower = (ly + rx - lx) / denominator;
 
-            //Detect input
-            if (gamepad1.a) {
-                flingPower = 1;
-            }else{
-                flingPower = 0;
-            }
 
-            if (gamepad1.b){
-                suck.setPower(-2);
-                suck1.setPower(2);
-           }else{
-                suck.setPower(0);
-                suck1.setPower(0);
-            }
 
-            if(gamepad1.left_trigger > 0){
-                turn.setPower(gamepad1.left_trigger);
-            }else if(gamepad1.right_trigger > 0){
-                turn.setPower(-gamepad1.right_trigger);
-            }else{
-                turn.setPower(0);
-            }
-
-            if(gamepad1.dpad_up){
-                frontRightPower = 1;
-                frontLeftPower = 1;
-                backLeftPower = 1;
-                backRightPower = 1;
-            }else if(gamepad1.dpad_down){
-                frontRightPower = -1;
-                frontLeftPower = -1;
-                backLeftPower = -1;
-                backRightPower = -1;
-            }else if(gamepad1.dpad_left){
-                frontRightPower = -1;
-                frontLeftPower = 1;
-                backLeftPower = -1;
-                backRightPower = 1;
-            }else if(gamepad1.dpad_right){
-                frontRightPower = 1;
-                frontLeftPower = -1;
-                backLeftPower = 1;
-                backRightPower = -1;
-            }
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
             motorFrontLeft.setPower(frontLeftPower);
             motorBackLeft.setPower(backLeftPower);
             motorFling.setPower(flingPower);
 
-            // Adds telemetry on the control hub to check stick positions
-            telemetry.addData("Gamepad X", gamepad1.left_stick_x);
-            telemetry.addData("Gamepad Y", gamepad1.left_stick_y);
             telemetry.addData("Fling power", flingPower);
            // telemetry.addData("Boost up", boostPower);
             telemetry.addData("Suck", suckPower);

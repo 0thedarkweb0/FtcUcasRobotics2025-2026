@@ -4,23 +4,38 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.CRServo;
-@TeleOp(name = "ProdDrive (Drive with this one)")
-public class Prod_Drive extends LinearOpMode {
+import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import java.util.List;
+
+@TeleOp(name = "BetaDrive (No touch)")
+public class Beta_Drive extends LinearOpMode {
+    private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
+    private AprilTagProcessor aprilTag;
+    private VisionPortal visionPortal;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+
+
         //mapping all the motors
-        DcMotor motorFrontRight = hardwareMap.dcMotor.get("rightFront");
-        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("leftFront");
-        DcMotor motorBackLeft = hardwareMap.dcMotor.get("leftBack");
-        DcMotor motorBackRight = hardwareMap.dcMotor.get("rightBack");
-        DcMotor motorFling = hardwareMap.dcMotor.get("fling");
-        CRServo turn = hardwareMap.crservo.get("push");
-        CRServo suck = hardwareMap.crservo.get("suck");
-        CRServo suck1 = hardwareMap.crservo.get("suck1");
+        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("rightFrontDrive");
+        DcMotor motorFrontRight = hardwareMap.dcMotor.get("leftFrontDrive");
+        DcMotor motorBackLeft = hardwareMap.dcMotor.get("leftBackDrive");
+        DcMotor motorBackRight = hardwareMap.dcMotor.get("rightBackDrive");
+        DcMotor motorBoost = hardwareMap.dcMotor.get("boostDrive");
+        DcMotor motorFling = hardwareMap.dcMotor.get("flingDrive");
+        DcMotor motorSuck = hardwareMap.dcMotor.get("suckDrive");
+        Servo turn = hardwareMap.servo.get("turn");
 
         double flingPower = 0;
+        double boostPower = 0;
         double suckPower = 0;
 
         // Reverse the right side motors
@@ -31,7 +46,7 @@ public class Prod_Drive extends LinearOpMode {
         motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorFling.setDirection(DcMotorSimple.Direction.REVERSE);
         //motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-       
+
         // This is the line that ends the init of the bot
         waitForStart();
 
@@ -60,57 +75,38 @@ public class Prod_Drive extends LinearOpMode {
             }
 
             if (gamepad1.b){
-                suck.setPower(-2);
-                suck1.setPower(2);
-           }else{
-                suck.setPower(0);
-                suck1.setPower(0);
-            }
-
-            if(gamepad1.left_trigger > 0){
-                turn.setPower(gamepad1.left_trigger);
-            }else if(gamepad1.right_trigger > 0){
-                turn.setPower(-gamepad1.right_trigger);
+                boostPower = 1;
             }else{
-                turn.setPower(0);
+                boostPower = 0;
             }
 
-            if(gamepad1.dpad_up){
-                frontRightPower = 1;
-                frontLeftPower = 1;
-                backLeftPower = 1;
-                backRightPower = 1;
-            }else if(gamepad1.dpad_down){
-                frontRightPower = -1;
-                frontLeftPower = -1;
-                backLeftPower = -1;
-                backRightPower = -1;
-            }else if(gamepad1.dpad_left){
-                frontRightPower = -1;
-                frontLeftPower = 1;
-                backLeftPower = -1;
-                backRightPower = 1;
-            }else if(gamepad1.dpad_right){
-                frontRightPower = 1;
-                frontLeftPower = -1;
-                backLeftPower = 1;
-                backRightPower = -1;
+            if(gamepad1.x){
+                suckPower = 1;
+            }else if(gamepad1.y){
+                suckPower=-1;
+            }else{
+                suckPower = 0;
             }
+
+            turn.setPosition(gamepad1.left_trigger);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
             motorFrontLeft.setPower(frontLeftPower);
             motorBackLeft.setPower(backLeftPower);
             motorFling.setPower(flingPower);
+            motorBoost.setPower(boostPower);
+            motorSuck.setPower(suckPower);
 
             // Adds telemetry on the control hub to check stick positions
             telemetry.addData("Gamepad X", gamepad1.left_stick_x);
             telemetry.addData("Gamepad Y", gamepad1.left_stick_y);
             telemetry.addData("Fling power", flingPower);
-           // telemetry.addData("Boost up", boostPower);
+            telemetry.addData("Boost up", boostPower);
             telemetry.addData("Suck", suckPower);
-            telemetry.addData("Servo Position", turn.getPower());
+            telemetry.addData("Servo Position", turn.getPosition());
             // Sends it to the control hub
             telemetry.update();
         }
     }
+
 }
