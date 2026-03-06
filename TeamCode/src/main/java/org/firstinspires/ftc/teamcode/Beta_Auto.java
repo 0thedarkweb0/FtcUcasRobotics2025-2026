@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-@Autonomous(name = "Beta Auto Shoot Once")
+@Autonomous(name = "Beta Auto Drive Turn Shoot")
 public class Beta_Auto extends LinearOpMode {
 
     boolean launchActive = false;
@@ -58,20 +58,67 @@ public class Beta_Auto extends LinearOpMode {
 
         motorFling.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFling.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorFling.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         waitForStart();
 
         if (isStopRequested()) return;
 
-        // Start shooting sequence
+        /* ---------------- DRIVE FORWARD ---------------- */
+
+        motorFrontLeft.setPower(0.4);
+        motorFrontRight.setPower(0.4);
+        motorBackLeft.setPower(0.4);
+        motorBackRight.setPower(0.4);
+
+        sleep(800); // adjust distance
+
+        motorFrontLeft.setPower(0);
+        motorFrontRight.setPower(0);
+        motorBackLeft.setPower(0);
+        motorBackRight.setPower(0);
+
+        /* ---------------- TURN TO YAW 112 ---------------- */
+
+        while (opModeIsActive()) {
+
+            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+            double yaw = orientation.getYaw(AngleUnit.DEGREES);
+
+            double targetYaw = 112;
+            double error = targetYaw - yaw;
+
+            if (error > 180) error -= 360;
+            if (error < -180) error += 360;
+
+            double kP = 0.02;
+            double turnPower = error * kP;
+
+            turnPower = Math.max(-0.4, Math.min(0.4, turnPower));
+
+            if (Math.abs(error) < 1.5) {
+                break;
+            }
+
+            motorFrontLeft.setPower(-turnPower);
+            motorBackLeft.setPower(-turnPower);
+            motorFrontRight.setPower(turnPower);
+            motorBackRight.setPower(turnPower);
+
+            telemetry.addData("Yaw", yaw);
+            telemetry.addData("Error", error);
+            telemetry.update();
+        }
+
+        motorFrontLeft.setPower(0);
+        motorFrontRight.setPower(0);
+        motorBackLeft.setPower(0);
+        motorBackRight.setPower(0);
+
+        /* ---------------- SHOOT ONE RING ---------------- */
+
         startLaunch(1);
 
         while (opModeIsActive() && launchActive) {
-
-            YawPitchRollAngles robotOrientation = imu.getRobotYawPitchRollAngles();
-
-            double Yaw = robotOrientation.getYaw(AngleUnit.DEGREES);
 
             long elapsed = (System.nanoTime() - stageStart) / 1_000_000;
 
@@ -80,7 +127,7 @@ public class Beta_Auto extends LinearOpMode {
 
             switch (launchStage) {
 
-                case 1: // Spin up flywheel
+                case 1: // spin up
                     targetVelocity = 1500;
                     motorFling.setVelocity(targetVelocity);
 
@@ -90,7 +137,7 @@ public class Beta_Auto extends LinearOpMode {
                     }
                     break;
 
-                case 2: // Fire
+                case 2: // fire
                     pushPower = 1;
                     suckPower = 1;
 
@@ -100,17 +147,16 @@ public class Beta_Auto extends LinearOpMode {
                     }
                     break;
 
-                case 3: // Retract
+                case 3: // retract
                     pushPower = -1;
 
                     if (elapsed > 500) {
-                        shotsRemaining--;
                         launchStage = 4;
                         stageStart = System.nanoTime();
                     }
                     break;
 
-                case 4: // Spin down
+                case 4: // stop
                     motorFling.setVelocity(0);
                     pushPower = 0;
                     suckPower = 0;
@@ -124,22 +170,13 @@ public class Beta_Auto extends LinearOpMode {
             push.setPower(pushPower);
             motorSuck.setPower(suckPower);
 
-            telemetry.addData("Stage", launchStage);
-            telemetry.addData("Target Velocity", targetVelocity);
             telemetry.addData("Velocity", motorFling.getVelocity());
-            telemetry.addData("Yaw", Yaw);
             telemetry.update();
         }
 
-        // Stop all motors
         motorFling.setPower(0);
         push.setPower(0);
         motorSuck.setPower(0);
-
-        motorFrontLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackLeft.setPower(0);
-        motorBackRight.setPower(0);
     }
 
     private void startLaunch(int numberOfShots) {
