@@ -12,14 +12,14 @@ public class SemiAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        //mapping all the motors
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("rightFront");
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("leftFront");
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("leftBack");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("rightBack");
         DcMotor motorFling = hardwareMap.dcMotor.get("fling");
-        CRServo turn = hardwareMap.crservo.get("turn");
+        CRServo turn = hardwareMap.crservo.get("push");
         CRServo suck = hardwareMap.crservo.get("suck");
+        CRServo suck1 = hardwareMap.crservo.get("suck1");
 
         double flingPower = 0;
         double suckPower = 0;
@@ -31,36 +31,24 @@ public class SemiAuto extends LinearOpMode {
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorFling.setDirection(DcMotorSimple.Direction.REVERSE);
-        //motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-       
+
         // This is the line that ends the init of the bot
         waitForStart();
 
+        motorFrontRight.setPower(1);
+        motorBackRight.setPower(1);
+        motorFrontLeft.setPower(1);
+        motorBackLeft.setPower(1);
+        motorFling.setPower(flingPower);
+        sleep(500);
+        motorFrontRight.setPower(0);
+        motorBackRight.setPower(0);
+        motorFrontLeft.setPower(0);
+        motorBackLeft.setPower(0);
+        motorFling.setPower(flingPower);
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-
-            // These lines assign game-pad 1 joysticks to variables
-            double ly = -gamepad1.left_stick_y;
-            double rx = -gamepad1.right_stick_x;
-            double lx = -gamepad1.left_stick_x;
-
-            // This makes variables for the motor power and sets it based on some math
-            // That takes the joystick x and y and does some things for motor power
-            double denominator = Math.max(Math.abs(ly) + Math.abs(rx) + Math.abs(lx), 1);
-            double frontLeftPower = (ly + rx + lx) / denominator;
-            double backLeftPower = (ly - rx + lx) / denominator;
-            double frontRightPower = (ly - rx - lx) / denominator;
-            double backRightPower = (ly + rx - lx) / denominator;
-
-
-
-            motorFrontRight.setPower(frontRightPower);
-            motorBackRight.setPower(backRightPower);
-            motorFrontLeft.setPower(frontLeftPower);
-            motorBackLeft.setPower(backLeftPower);
-            motorFling.setPower(flingPower);
-
             telemetry.addData("Fling power", flingPower);
            // telemetry.addData("Boost up", boostPower);
             telemetry.addData("Suck", suckPower);
